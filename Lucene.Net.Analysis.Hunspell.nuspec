@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <version>1.0.1</version>
+    <authors>sisve</authors>
+    <owners />
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
+    <projectUrl>https://github.com/sisve/Lucene.Net.Analysis.Hunspell</projectUrl>
+    <dependencies>
+      <dependency id="Lucene.Net" version="2.9.4.1" />
+    </dependencies>
+    <id>Lucene.Net.Analysis.Hunspell</id>
+    <title />
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Port of lucene-hunspell; using hunspell dictionaries for stemming.</description>
+  </metadata>
+  <files>
+    <file src="src\bin\Release\Lucene.Net.Analysis.Hunspell.dll" target="lib\Lucene.Net.Analysis.Hunspell.dll" />
+    <file src="src\bin\Release\Lucene.Net.Analysis.Hunspell.pdb" target="lib\Lucene.Net.Analysis.Hunspell.pdb" />
+    <file src="src\bin\Release\Lucene.Net.Analysis.Hunspell.XML" target="lib\Lucene.Net.Analysis.Hunspell.XML" />
+  </files>
+</package>

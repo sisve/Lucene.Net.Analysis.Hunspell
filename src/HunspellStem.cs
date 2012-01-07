@@ -77,9 +77,5 @@ namespace Lucene.Net.Analysis.Hunspell {
         public void AddSuffix(HunspellAffix suffix) {
             _suffixes.Add(suffix);
         }
-
-        public String GetStemString() {
-            return _stem;
-        }
     }
 }
