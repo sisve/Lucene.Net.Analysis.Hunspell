@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lucene.Net.Analysis.Hunspell", "src\Lucene.Net.Analysis.Hunspell.csproj", "{FC757BF2-37A6-4638-B0F1-8600AA4162A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lucene.Net.Analysis.Hunspell.Tests", "tests\Lucene.Net.Analysis.Hunspell.Tests.csproj", "{26B19178-F503-477D-B452-938A6A28AC47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{FC757BF2-37A6-4638-B0F1-8600AA4162A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC757BF2-37A6-4638-B0F1-8600AA4162A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC757BF2-37A6-4638-B0F1-8600AA4162A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26B19178-F503-477D-B452-938A6A28AC47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26B19178-F503-477D-B452-938A6A28AC47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26B19178-F503-477D-B452-938A6A28AC47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26B19178-F503-477D-B452-938A6A28AC47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

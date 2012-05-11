@@ -25,6 +25,7 @@ namespace Lucene.Net.Analysis.Hunspell {
         private static readonly String PREFIX_KEY = "PFX";
         private static readonly String SUFFIX_KEY = "SFX";
         private static readonly String FLAG_KEY = "FLAG";
+        private static readonly String AF_KEY = "AF";
 
         private static readonly String NUM_FLAG_TYPE = "num";
         private static readonly String UTF8_FLAG_TYPE = "UTF-8";
@@ -37,6 +38,9 @@ namespace Lucene.Net.Analysis.Hunspell {
         private readonly Dictionary<String, List<HunspellAffix>> _suffixes = new Dictionary<String, List<HunspellAffix>>();
         private readonly Dictionary<String, List<HunspellWord>> _words = new Dictionary<String, List<HunspellWord>>();
         private FlagParsingStrategy _flagParsingStrategy = new SimpleFlagParsingStrategy(); // Default flag parsing strategy
+
+        // alias
+        private readonly List<char[]> _alias = new List<char[]>();
 
         /// <summary>
         ///   Creates a new HunspellDictionary containing the information read from the provided streams to hunspell affix and dictionary file.
@@ -138,10 +142,38 @@ namespace Lucene.Net.Analysis.Hunspell {
                         // Assume that the FLAG line comes before any prefix or suffixes
                         // Store the strategy so it can be used when parsing the dic file
                         _flagParsingStrategy = GetFlagParsingStrategy(line);
+                    } else if (line.StartsWith(AF_KEY)) {
+                        // Parse Alias Flag
+                        ParseAliasFlag(line, reader);
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// Parse alias flag and put it in hash
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="reader"></param>
+        private void ParseAliasFlag(string header, StreamReader reader)
+        {
+            if (reader == null) throw new ArgumentNullException("reader");
+            var args = Regex.Split(header, "\\s+");
+            var numLines = Int32.Parse(args[1]);
+
+            for (var i = 0; i < numLines; i++)
+            {
+                var line = reader.ReadLine();
+                var ruleArgs = Regex.Split(line, "\\s+");
+
+                if (ruleArgs[0] != "AF")
+                    throw new Exception("File corrutped, should be AF directive : " + line);
+
+                var appendFlags = _flagParsingStrategy.ParseFlags(ruleArgs[1]);
+                _alias.Add(appendFlags);
+            }
+        }
+
 
         /// <summary>
         ///   Parses a specific affix rule putting the result into the provided affix map.
@@ -173,7 +205,8 @@ namespace Lucene.Net.Analysis.Hunspell {
 
                 var flagSep = affixArg.LastIndexOf('/');
                 if (flagSep != -1) {
-                    var appendFlags = _flagParsingStrategy.ParseFlags(affixArg.Substring(flagSep + 1));
+                    var cflag = affixArg.Substring(flagSep + 1);
+                    var appendFlags = _alias.Count > 0 ? _alias[int.Parse(cflag) - 1] : _flagParsingStrategy.ParseFlags(cflag);
                     Array.Sort(appendFlags);
                     affix.AppendFlags = appendFlags;
                     affix.Append = affixArg.Substring(0, flagSep);
@@ -289,10 +322,9 @@ namespace Lucene.Net.Analysis.Hunspell {
                     // note, there can be comments (morph description) after a flag.
                     // we should really look for any whitespace
                     var end = line.IndexOf('\t', flagSep);
-                    if (end == -1)
-                        wordForm = new HunspellWord(_flagParsingStrategy.ParseFlags(line.Substring(flagSep + 1)));
-                    else
-                        wordForm = new HunspellWord(_flagParsingStrategy.ParseFlags(line.Substring(flagSep + 1, end)));
+                    var cflag = end == -1 ? line.Substring(flagSep + 1) : line.Substring(flagSep + 1, end - flagSep - 1);
+
+                    wordForm = new HunspellWord(_alias.Count > 0 ? _alias[int.Parse(cflag) - 1] : _flagParsingStrategy.ParseFlags(cflag));
 
                     entry = line.Substring(0, flagSep);
                 }
