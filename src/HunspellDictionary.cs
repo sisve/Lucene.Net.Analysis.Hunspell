@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -37,10 +38,8 @@ namespace Lucene.Net.Analysis.Hunspell {
         private readonly Dictionary<String, List<HunspellAffix>> _prefixes = new Dictionary<String, List<HunspellAffix>>();
         private readonly Dictionary<String, List<HunspellAffix>> _suffixes = new Dictionary<String, List<HunspellAffix>>();
         private readonly Dictionary<String, List<HunspellWord>> _words = new Dictionary<String, List<HunspellWord>>();
+        private readonly Dictionary<String, Char[]> _aliases = new Dictionary<String, Char[]>();
         private FlagParsingStrategy _flagParsingStrategy = new SimpleFlagParsingStrategy(); // Default flag parsing strategy
-
-        // alias
-        private readonly List<char[]> _alias = new List<char[]>();
 
         /// <summary>
         ///   Creates a new HunspellDictionary containing the information read from the provided streams to hunspell affix and dictionary file.
@@ -155,25 +154,22 @@ namespace Lucene.Net.Analysis.Hunspell {
         /// </summary>
         /// <param name="line"></param>
         /// <param name="reader"></param>
-        private void ParseAliasFlag(string header, StreamReader reader)
-        {
+        private void ParseAliasFlag(String line, TextReader reader) {
             if (reader == null) throw new ArgumentNullException("reader");
-            var args = Regex.Split(header, "\\s+");
+            var args = Regex.Split(line, "\\s+");
             var numLines = Int32.Parse(args[1]);
 
-            for (var i = 0; i < numLines; i++)
-            {
-                var line = reader.ReadLine();
+            for (var i = 0; i < numLines; i++) {
+                line = reader.ReadLine();
                 var ruleArgs = Regex.Split(line, "\\s+");
 
                 if (ruleArgs[0] != "AF")
-                    throw new Exception("File corrutped, should be AF directive : " + line);
+                    throw new Exception("File corrupted, should be AF directive : " + line);
 
                 var appendFlags = _flagParsingStrategy.ParseFlags(ruleArgs[1]);
-                _alias.Add(appendFlags);
+                _aliases.Add((i+1).ToString(CultureInfo.InvariantCulture), appendFlags);
             }
         }
-
 
         /// <summary>
         ///   Parses a specific affix rule putting the result into the provided affix map.
@@ -192,6 +188,7 @@ namespace Lucene.Net.Analysis.Hunspell {
             var crossProduct = args[2].Equals("Y");
             var numLines = Int32.Parse(args[3]);
 
+            var hasAliases = _aliases.Count > 0;
             for (var i = 0; i < numLines; i++) {
                 var line = reader.ReadLine();
                 var ruleArgs = Regex.Split(line, "\\s+");
@@ -206,7 +203,7 @@ namespace Lucene.Net.Analysis.Hunspell {
                 var flagSep = affixArg.LastIndexOf('/');
                 if (flagSep != -1) {
                     var cflag = affixArg.Substring(flagSep + 1);
-                    var appendFlags = _alias.Count > 0 ? _alias[int.Parse(cflag) - 1] : _flagParsingStrategy.ParseFlags(cflag);
+                    var appendFlags = hasAliases ? _aliases[cflag] : _flagParsingStrategy.ParseFlags(cflag);
                     Array.Sort(appendFlags);
                     affix.AppendFlags = appendFlags;
                     affix.Append = affixArg.Substring(0, flagSep);
@@ -307,6 +304,7 @@ namespace Lucene.Net.Analysis.Hunspell {
             // nocommit, don't create millions of strings.
             var line = reader.ReadLine(); // first line is number of entries
             var numEntries = Int32.Parse(line);
+            var hasAliases = _aliases.Count > 0;
 
             // nocommit, the flags themselves can be double-chars (long) or also numeric
             // either way the trick is to encode them as char... but they must be parsed differently
@@ -324,7 +322,7 @@ namespace Lucene.Net.Analysis.Hunspell {
                     var end = line.IndexOf('\t', flagSep);
                     var cflag = end == -1 ? line.Substring(flagSep + 1) : line.Substring(flagSep + 1, end - flagSep - 1);
 
-                    wordForm = new HunspellWord(_alias.Count > 0 ? _alias[int.Parse(cflag) - 1] : _flagParsingStrategy.ParseFlags(cflag));
+                    wordForm = new HunspellWord(hasAliases ? _aliases[cflag] : _flagParsingStrategy.ParseFlags(cflag));
 
                     entry = line.Substring(0, flagSep);
                 }
