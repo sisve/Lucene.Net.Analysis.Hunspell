@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Lucene.Net, Version=2.9.4.1, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL" />
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -45,9 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\ResourceToFile.cs" />
+    <Compile Include="BaseTokenStreamTestCase.cs" />
     <Compile Include="HunspellDictionaryTests.cs" />
+    <Compile Include="HunspellStemFilterTests.cs" />
+    <Compile Include="HunspellStemmerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ContentHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Lucene.Net.Analysis.Hunspell.csproj">
@@ -60,6 +64,10 @@
     <EmbeddedResource Include="Content\fr-moderne.dic" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Content\en_US.aff" />
+    <EmbeddedResource Include="Content\en_US.dic" />
+    <EmbeddedResource Include="Content\nl_NL.aff" />
+    <EmbeddedResource Include="Content\nl_NL.dic" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
